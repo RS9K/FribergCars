@@ -1,0 +1,37 @@
+﻿@model List<FribergCars.Models.Car>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Manage Cars";
+}
+
+<h2>Manage Cars</h2>
+
+<a href="/admin/add-car" class="btn btn-success mb-3">+ Add New Car</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Available</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var car in Model)
+        {
+            <tr>
+                <td>@car.Brand</td>
+                <td>@car.Model</td>
+                <td>@(car.IsAvailable ? "Yes" : "No")</td>
+                <td>
+                    <a asp-action="UpdateCar" asp-route-id="@car.Id" class="btn btn-sm btn-primary">Edit</a>
+                    <a asp-action="DeleteCar" asp-route-id="@car.Id" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

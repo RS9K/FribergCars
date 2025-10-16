@@ -1,0 +1,34 @@
+﻿@model List<FribergCars.Models.Customer>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Manage Customers";
+}
+
+<h2>Manage Customers</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var customer in Model)
+        {
+            <tr>
+                <td>@customer.FullName</td>
+                <td>@customer.Email</td>
+                <td>
+                    <form asp-action="DeleteCustomer" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@customer.Id" />
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

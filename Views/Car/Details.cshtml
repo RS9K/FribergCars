@@ -1,0 +1,99 @@
+﻿@model FribergCars.Models.Car
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Car Details";
+    var isCustomerLoggedIn = Context.Session.GetInt32("CustomerId") != null;
+}
+
+<h2>Car Details</h2>
+
+<div class="card mb-3">
+    <div class="row g-0">
+        <div class="col-md-6">
+            <!-- Bootstrap carousel for 3 images -->
+            <div id="carImages" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <div class="carousel-item active">
+                            <img src="@Model.ImageUrl" class="d-block w-100" alt="Car Image 1" 
+                            style="height: 400px; object-fit: cover;">
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl2))
+                    {
+                        <div class="carousel-item">
+                            <img src="@Model.ImageUrl2" class="d-block w-100" alt="Car Image 2"
+                                 style="height: 400px; object-fit: cover;">
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl3))
+                    {
+                        <div class="carousel-item">
+                            <img src="@Model.ImageUrl3" class="d-block w-100" alt="Car Image 3"
+                                 style="height: 400px; object-fit: cover;">
+                        </div>
+                    }
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#carImages" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carImages" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card-body">
+                <h4 class="card-title">@Model.Brand - @Model.Model</h4>
+                <p class="card-text">@Model.Description</p>
+
+                @if (Model.IsAvailable)
+                {
+                    @if (isCustomerLoggedIn)
+                    {
+                        <a href="/Booking/Create?carId=@Model.Id" class="btn btn-success">Book This Car</a>
+                    }
+                    else
+                    {
+                        <a href="/Customer/Login" class="btn btn-warning">Log in to book</a>
+                    }
+                }
+                else
+                {
+                    <div class="text-danger">Currently Unavailable</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@* @model FribergCars.Models.Car
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Car Details";
+}
+
+<h2>Car Details</h2>
+
+<div class="card mb-3">
+    <img src="@Model.ImageUrl" class="card-img-top" alt="Car Image" />
+    <div class="card-body">
+        <h4 class="card-title">@Model.Brand - @Model.Model</h4>
+        <p class="card-text">@Model.Description</p>
+
+        @if (Model.IsAvailable)
+        {
+            <a href="/Booking/Create?carId=@Model.Id" class="btn btn-success">Book This Car</a>
+        }
+        else
+        {
+            <div class="text-danger">Currently Unavailable</div>
+        }
+    </div>
+</div> *@

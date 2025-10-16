@@ -1,0 +1,37 @@
+﻿@model FribergCars.Models.Booking
+
+@{
+    ViewData["Title"] = "Book a Car";
+}
+
+<h2>Book Car</h2>
+
+<div class="card p-4 shadow-sm">
+    <form asp-action="Create" method="post">
+        <input type="hidden" asp-for="CarId" />
+
+        <div class="mb-3">
+            <label class="form-label">Car</label>
+            <input class="form-control" value="@Model.Car.Brand @Model.Car.Model" readonly />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="StartDate" class="form-label"></label>
+            <input asp-for="StartDate" class="form-control" type="date" />
+            <span asp-validation-for="StartDate" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="EndDate" class="form-label"></label>
+            <input asp-for="EndDate" class="form-control" type="date" />
+            <span asp-validation-for="EndDate" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Confirm Booking</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

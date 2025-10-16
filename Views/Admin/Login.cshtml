@@ -1,0 +1,31 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Admin Login";
+}
+
+<div class="mb-3 text-center">
+    <a class="btn btn-outline-primary me-2" asp-controller="Customer" asp-action="Login">Customer Login</a>
+    <a class="btn btn-outline-secondary" asp-controller="Admin" asp-action="Login">Admin Login</a>
+</div>
+
+<h2>Admin Login</h2>
+
+<form method="post" asp-action="Login">
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input name="email" type="email" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input name="password" type="password" class="form-control" required>
+    </div>
+
+    @if (ViewData["Error"] != null)
+    {
+        <div class="text-danger">@ViewData["Error"]</div>
+    }
+
+    <button type="submit" class="btn btn-danger">Login as Admin</button>
+</form>
+

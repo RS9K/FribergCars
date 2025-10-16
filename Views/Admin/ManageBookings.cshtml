@@ -1,0 +1,44 @@
+﻿@model List<FribergCars.Models.Booking>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Manage Bookings";
+}
+
+<h2>Manage Bookings</h2>
+
+@if (!Model.Any())
+{
+    <p>No bookings found.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Car</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in Model)
+            {
+                <tr>
+                    <td>@booking.Customer.FullName (@booking.Customer.Email)</td>
+                    <td>@booking.Car.Brand @booking.Car.Model</td>
+                    <td>@booking.StartDate.ToShortDateString()</td>
+                    <td>@booking.EndDate.ToShortDateString()</td>
+                    <td>
+                        <form asp-action="DeleteBooking" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@booking.Id" />
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -1,0 +1,25 @@
+﻿@model List<FribergCars.Models.Car>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Available Cars";
+}
+
+<h2>Available Cars</h2>
+
+<div class="row">
+    @foreach (var car in Model)
+    {
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <img src="@car.ImageUrl" class="card-img-top" alt="Car Image" 
+                style="height: 300px; object-fit: cover;" />
+                <div class="card-body">
+                    <h5 class="card-title">@car.Brand - @car.Model</h5>
+                    <p class="card-text">@car.Description</p>
+                    <a href="/Car/Details/@car.Id" class="btn btn-primary">Details</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
