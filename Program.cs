@@ -1,10 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using FribergCars.Data;
-using FribergCars.Models;
-using FribergCars.Repositories.Interfaces;
-using FribergCars.Repositories.Implementations;
-
-
 namespace FribergCars
 {
     public class Program
@@ -15,19 +8,6 @@ namespace FribergCars
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-
-            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            builder.Services.AddSession();
-
-            // DbContext with SQL Server
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-            // Register the repository service
-            builder.Services.AddScoped<ICarRepository, CarRepository>();
-            builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
-            builder.Services.AddScoped<IBookingRepository, BookingRepository>();
-            builder.Services.AddScoped<IAdministratorRepository, AdministratorRepository>();
 
             var app = builder.Build();
 
@@ -43,7 +23,6 @@ namespace FribergCars
             app.UseStaticFiles();
 
             app.UseRouting();
-            app.UseSession();
 
             app.UseAuthorization();
 
