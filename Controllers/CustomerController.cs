@@ -1,91 +1,93 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FribergCars.Models;
-using FribergCars.Data;
-using FribergCars.Repositories.Interfaces;
-using Microsoft.Identity.Client;
+using FribergCars.Services;
 
 namespace FribergCars.Controllers
 {
     public class CustomerController : Controller
     {
-        private readonly ICustomerRepository _customerRepo;
-        private readonly IBookingRepository _bookingRepo;
-        private readonly ICarRepository _carRepo;
+        private readonly CustomerApiClient _customerApi;
+        private readonly CarApiClient _carApi;
+        private readonly BookingApiClient _bookingApi;
 
-        public CustomerController (ICustomerRepository customerRepo, IBookingRepository bookingRepo, ICarRepository carRepo)
+        public CustomerController(
+            CustomerApiClient customerApi,
+            CarApiClient carApi,
+            BookingApiClient bookingApi)
         {
-            _customerRepo = customerRepo;
-            _bookingRepo = bookingRepo;
-            _carRepo = carRepo;
+            _customerApi = customerApi;
+            _carApi = carApi;
+            _bookingApi = bookingApi;
         }
 
         // GET: Customer/Register
         public IActionResult Register()
         {
-             return View(); // Views/Customer/Register.cshtml
+            return View();
         }
 
         // POST: Customer/Register
         [HttpPost]
-        public IActionResult Register (string fullName, string email, string password)
+        public async Task<IActionResult> Register(string fullName, string email, string password)
         {
-            var existing = _customerRepo.GetByEmail(email);
-            if (existing != null)
-            {
-                ViewData["Error"] = "Email already registered.";
-                return View(); // Views/Customer/Register.cshtml
-            }
-
             var customer = new Customer
             {
                 FullName = fullName,
                 Email = email,
-                Password = password 
+                Password = password
             };
-            _customerRepo.Add(customer);
 
-            // Auto-login after registration
+            var created = await _customerApi.RegisterAsync(customer);
+
+            if (created == null)
+            {
+                ViewData["Error"] = "Email already registered";
+                return View();
+            }
+
             HttpContext.Session.SetString("UserType", "Customer");
-            HttpContext.Session.SetInt32("UserId", customer.Id);
-            return RedirectToAction("CustomerHome", "Home"); // Redirect to home page after registration
+            HttpContext.Session.SetInt32("CustomerId", created.Id);
+
+            return RedirectToAction("CustomerHome", "Home");
         }
 
         // GET: Customer/Login
         public IActionResult Login()
         {
-            return View(); // Views/Customer/Login.cshtml
+            return View();
         }
 
         // POST: Customer/Login
         [HttpPost]
-        public IActionResult Login(string email, string password)
+        public async Task<IActionResult> Login(string email, string password)
         {
-            var customer = _customerRepo.GetByEmailAndPassword(email, password);
+            var customer = await _customerApi.LoginAsync(email, password);
+
             if (customer == null)
             {
-                ViewData["Error"] = "Invalid email or password.";
+                ViewData["Error"] = "Invalid login";
                 return View();
             }
 
             HttpContext.Session.SetString("UserType", "Customer");
             HttpContext.Session.SetInt32("CustomerId", customer.Id);
-            return RedirectToAction("CustomerHome", "Home"); // Redirect to home page after login
+
+            return RedirectToAction("CustomerHome", "Home");
         }
 
-        // GET: Customer/Logout
         public IActionResult Logout()
         {
-            HttpContext.Session.Clear(); // Clear session data
-            return RedirectToAction("Index", "Home"); // Redirect to home page after logout
+            HttpContext.Session.Clear();
+            return RedirectToAction("Index", "Home");
         }
-        // GET: Customer/MyBookings
-        [HttpGet("book-car/{id}")]
-        public IActionResult BookCar(int id)
+
+        // GET: Book-Car
+        public async Task<IActionResult> BookCar(int id)
         {
             if (HttpContext.Session.GetString("UserType") != "Customer")
                 return RedirectToAction("Login");
 
-            var car = _carRepo.GetById(id);
+            var car = await _carApi.GetByIdAsync(id);
             if (car == null)
                 return NotFound();
 
@@ -97,8 +99,9 @@ namespace FribergCars.Controllers
 
             return View(booking);
         }
-        [HttpPost("book-car/{id}")]
-        public IActionResult BookCar(int id, Booking booking)
+
+        [HttpPost]
+        public async Task<IActionResult> BookCar(int id, Booking booking)
         {
             if (HttpContext.Session.GetString("UserType") != "Customer")
                 return RedirectToAction("Login");
@@ -109,42 +112,31 @@ namespace FribergCars.Controllers
 
             booking.CustomerId = customerId.Value;
             booking.CarId = id;
-            _bookingRepo.Add(booking);
+
+            await _bookingApi.CreateAsync(booking);
 
             return RedirectToAction("MyBookings");
         }
-        [HttpGet("my-bookings")]
-        public IActionResult MyBookings()
+
+        public async Task<IActionResult> MyBookings()
         {
             if (HttpContext.Session.GetString("UserType") != "Customer")
                 return RedirectToAction("Login");
 
-            int? customerId = HttpContext.Session.GetInt32("CustomerId");
-            if (customerId == null)
-                return RedirectToAction("Login");
+            int customerId = HttpContext.Session.GetInt32("CustomerId")!.Value;
 
-            var bookings = _bookingRepo.GetByCustomerId(customerId.Value);
-            return View("MyBookings", bookings); // Views/Customer/MyBookings.cshtml
+            var bookings = await _bookingApi.GetByCustomerIdAsync(customerId);
+
+            return View(bookings);
         }
 
-        // Delete Booking
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult DeleteBooking(int id)
+        public async Task<IActionResult> DeleteBooking(int id)
         {
             if (HttpContext.Session.GetString("UserType") != "Customer")
                 return RedirectToAction("Login");
 
-            int? customerId = HttpContext.Session.GetInt32("CustomerId");
-            if (customerId == null)
-                return RedirectToAction("Login");
-
-            var booking = _bookingRepo.GetById(id);
-
-            if (booking == null || booking.CustomerId != customerId.Value)
-                return Unauthorized(); // Prevents deleting others’ bookings
-
-            _bookingRepo.Delete(id);
+            await _bookingApi.DeleteAsync(id);
 
             return RedirectToAction("MyBookings");
         }

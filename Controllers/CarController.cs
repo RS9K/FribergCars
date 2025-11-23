@@ -1,31 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FribergCars.Models;
-using FribergCars.Data;
-using FribergCars.Repositories.Interfaces;
+using FribergCars.Services;
 
 namespace FribergCars.Controllers
 {
     public class CarController : Controller
     {
-        private readonly ICarRepository _carRepo;
+        private readonly CarApiClient _carApiClient;
 
-        public CarController (ICarRepository carRepository)
+        public CarController (CarApiClient carApiClient)
         {
-            _carRepo = carRepository;
+            _carApiClient = carApiClient;
         }
 
         // GET: /Car
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var cars = _carRepo.GetAll().Where(c => c.IsAvailable).ToList();
+            var cars = await _carApiClient.GetAllAsync();
             return View(cars); 
             // Views/Car/Index.cshtml
         }
 
         // GET: /Car/Details/5
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var car = _carRepo.GetById(id);
+            var car = await _carApiClient.GetByIdAsync(id);
             if (car == null)
             {
                 return NotFound();
