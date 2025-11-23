@@ -16,7 +16,7 @@ namespace FribergCars.Services
 
         public async Task<Customer?> RegisterAsync(Customer customer)
         {
-            var result = await _httpClient.PostAsJsonAsync("api/customers", customer);
+            var result = await _httpClient.PostAsJsonAsync("api/customer", customer);
             if (!result.IsSuccessStatusCode)
                 return null;
             return await result.Content.ReadFromJsonAsync<Customer>();
@@ -26,7 +26,7 @@ namespace FribergCars.Services
         {
             var body = new { email, password };
             var result = await _httpClient.PostAsJsonAsync(
-                "api/customers/login", body);
+                "api/customer/login", body);
 
             if (!result.IsSuccessStatusCode)
                 return null;
@@ -36,18 +36,18 @@ namespace FribergCars.Services
         public async Task<Customer?> GetByIdAsync(int id)
         {
             return await _httpClient.GetFromJsonAsync<Customer>(
-                $"api/customers/{id}");
+                $"api/customer/{id}");
         }
         public async Task<List<Customer>> GetAllAsync()
         {
             var customers = await _httpClient.GetFromJsonAsync<List<Customer>>(
-                "api/customers");
+                "api/customer");
             return customers ?? new List<Customer>();
         }
         public async Task<bool> DeleteAsync(int id)
         {
             var response = await _httpClient.DeleteAsync(
-                $"api/customers/{id}");
+                $"api/customer/{id}");
             return response.IsSuccessStatusCode;
         }
     }
