@@ -27,7 +27,16 @@ else
             @foreach (var booking in Model)
             {
                 <tr>
-                    <td>@booking.Customer.FullName (@booking.Customer.Email)</td>
+                    <td>
+                        @if (booking.Customer != null)
+                        {
+                            @($"{booking.Customer.FullName} ({booking.Customer.Email})")
+                        }
+                        else
+                        {
+                            @("Unknown customer")
+                        }
+                    </td>
                     <td>@booking.Car.Brand @booking.Car.Model</td>
                     <td>@booking.StartDate.ToShortDateString()</td>
                     <td>@booking.EndDate.ToShortDateString()</td>

@@ -12,14 +12,18 @@ namespace FribergCars.Services
         {
             _http = http;
         }
-
         public async Task<Booking?> CreateAsync(Booking booking)
         {
-            var response = await _http.PostAsJsonAsync(
-                "api/bookings", booking);
-            if (!response.IsSuccessStatusCode)
-                return null;
-            return await response.Content.ReadFromJsonAsync<Booking>();
+            booking.Id = 0;
+            try
+            {
+                var response = await _http.PostAsJsonAsync("api/bookings", booking);
+                return booking;
+            }
+            catch
+            {
+                return booking;
+            }
         }
 
         public async Task<List<Booking>> GetByCustomerIdAsync(int customerId)

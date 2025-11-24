@@ -7,7 +7,12 @@
 <h2>Book Car</h2>
 
 <div class="card p-4 shadow-sm">
-    <form asp-action="Create" method="post">
+    <form asp-controller="Customer"
+          asp-action="BookCar"
+          asp-route-id="@Model.CarId"
+          method="post">
+
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
         <input type="hidden" asp-for="CarId" />
 
         <div class="mb-3">

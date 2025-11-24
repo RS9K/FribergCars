@@ -94,7 +94,9 @@ namespace FribergCars.Controllers
             var booking = new Booking
             {
                 CarId = car.Id,
-                Car = car
+                Car = car,
+                StartDate = DateTime.Today,
+                EndDate = DateTime.Today.AddDays(1)
             };
 
             return View(booking);
@@ -110,12 +112,20 @@ namespace FribergCars.Controllers
             if (customerId == null)
                 return RedirectToAction("Login");
 
+            booking.Id = 0; // Ensure a new booking is created
             booking.CustomerId = customerId.Value;
             booking.CarId = id;
 
-            await _bookingApi.CreateAsync(booking);
+            var created = await _bookingApi.CreateAsync(booking);
+            if (created == null)
+            {
+                ModelState.AddModelError("", "Could not create booking. Please check the dates.");
+                booking.Car = await _carApi.GetByIdAsync(id);
+                return View(booking);
+            }
 
-            return RedirectToAction("MyBookings");
+            TempData["BookingSuccess"] = "Booking created successfully!";
+            return RedirectToAction("MyBookings", "Customer");
         }
 
         public async Task<IActionResult> MyBookings()

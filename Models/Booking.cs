@@ -1,4 +1,7 @@
-﻿namespace FribergCars.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace FribergCars.Models
 {
     public class Booking
     {
