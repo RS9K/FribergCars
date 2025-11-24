@@ -1,27 +1,27 @@
 ﻿using FribergCars.Models;
-using FribergCars.Repositories.Interfaces;
+using FribergCars.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FribergCars.Controllers
 {
     public class BookingController : Controller
     {
-        private readonly IBookingRepository _bookingRepo;
-        private readonly ICarRepository _carRepo;
-        public BookingController(IBookingRepository bookingRepo, ICarRepository carRepo)
+        private readonly BookingApiClient _bookingApi;
+        private readonly CarApiClient _carApi;
+        public BookingController(BookingApiClient bookingApi, CarApiClient carApi)
         {
-            _bookingRepo = bookingRepo;
-            _carRepo = carRepo;
+            _bookingApi = bookingApi;
+            _carApi = carApi;
         }
         // GET: Booking/Create
         [HttpGet]
-        public IActionResult Create(int carId)
+        public async Task<IActionResult> Create(int carId)
         {
             // Check if customer is logged in
             if (HttpContext.Session.GetString("UserType") != "Customer")
                 return RedirectToAction("Login", "Customer");
 
-            var car = _carRepo.GetById(carId);
+            var car = await _carApi.GetByIdAsync(carId);
             if (car == null)
                 return NotFound();
 
@@ -37,7 +37,7 @@ namespace FribergCars.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Booking booking)
+        public async Task<IActionResult> Create(Booking booking)
         {
             if (HttpContext.Session.GetString("UserType") != "Customer")
                 return RedirectToAction("Login", "Customer");
@@ -49,12 +49,18 @@ namespace FribergCars.Controllers
             if (booking.StartDate >= booking.EndDate)
             {
                 ModelState.AddModelError("", "End date must be after start date.");
-                booking.Car = _carRepo.GetById(booking.CarId);
+                booking.Car = await _carApi.GetByIdAsync(booking.CarId);
                 return View(booking);
             }
 
             booking.CustomerId = customerId.Value;
-            _bookingRepo.Add(booking);
+            var created = await _bookingApi.CreateAsync(booking);
+            if (created == null)
+            {
+                ModelState.AddModelError("", "Failed to create booking. Please try again.");
+                booking.Car = await _carApi.GetByIdAsync(booking.CarId);
+                return View(booking);
+            }
 
             TempData["BookingSuccess"] = "The Booking was successfull!";
             return RedirectToAction("MyBookings", "Customer");

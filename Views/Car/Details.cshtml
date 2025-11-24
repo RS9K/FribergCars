@@ -53,13 +53,22 @@
 
                 @if (Model.IsAvailable)
                 {
-                    @if (isCustomerLoggedIn)
+                    if (isCustomerLoggedIn)
                     {
-                        <a href="/Booking/Create?carId=@Model.Id" class="btn btn-success">Book This Car</a>
+                        <a asp-controller="Customer"
+                           asp-action="BookCar"
+                           asp-route-id="@Model.Id"
+                           class="btn btn-success">
+                           Book This Car
+                        </a>
                     }
                     else
                     {
-                        <a href="/Customer/Login" class="btn btn-warning">Log in to book</a>
+                        <a asp-controller="Customer"
+                           asp-action="Login"
+                           class="btn btn-warning">
+                            Log in to book
+                        </a>
                     }
                 }
                 else

@@ -1,4 +1,4 @@
-namespace FribergCars.Models
+﻿namespace FribergCars.Models
 {
     public class ErrorViewModel
     {
@@ -7,3 +7,4 @@ namespace FribergCars.Models
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
     }
 }
+

@@ -1,9 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using FribergCars.Data;
-using FribergCars.Models;
-using FribergCars.Repositories.Interfaces;
-using FribergCars.Repositories.Implementations;
-
+using FribergCars.Services;
 
 namespace FribergCars
 {
@@ -16,18 +11,59 @@ namespace FribergCars
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            builder.Services.AddSession();
+            // HttpContextAccessor
+            builder.Services.AddHttpContextAccessor();
 
-            // DbContext with SQL Server
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            // Storing session in memory
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
 
-            // Register the repository service
-            builder.Services.AddScoped<ICarRepository, CarRepository>();
-            builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
-            builder.Services.AddScoped<IBookingRepository, BookingRepository>();
-            builder.Services.AddScoped<IAdministratorRepository, AdministratorRepository>();
+            // HttpClient for CarApiClient
+            builder.Services.AddHttpClient<CarApiClient>((sp, client) =>
+            {
+                var cfg= sp.GetRequiredService<IConfiguration>();
+                var baseUrl = cfg["ApiBaseUrl"];
+
+                if (string.IsNullOrWhiteSpace(baseUrl))
+                    throw new InvalidOperationException("APIBaseUrl is missing in appsettings.json");
+
+                client.BaseAddress = new Uri(baseUrl);
+            });
+
+            // HttpClient for CustomerApiClient
+            builder.Services.AddHttpClient<CustomerApiClient>((sp, client) =>
+            {
+                var cfg = sp.GetRequiredService<IConfiguration>();
+                var baseUrl = cfg["ApiBaseUrl"];
+                if (string.IsNullOrWhiteSpace(baseUrl))
+                    throw new InvalidOperationException("APIBaseUrl is missing in appsettings.json");
+                client.BaseAddress = new Uri(baseUrl);
+            });
+
+            // HttpClient for BookingApiClient
+            builder.Services.AddHttpClient<BookingApiClient>((sp, client) =>
+            {
+                var cfg = sp.GetRequiredService<IConfiguration>();
+                var baseUrl = cfg["ApiBaseUrl"];
+                if (string.IsNullOrWhiteSpace(baseUrl))
+                    throw new InvalidOperationException("APIBaseUrl is missing in appsettings.json");
+                client.BaseAddress = new Uri(baseUrl);
+            });
+
+            // HttpClient for AdminApiClient
+            builder.Services.AddHttpClient<AdminApiClient>((sp, client) =>
+            {
+                var cfg = sp.GetRequiredService<IConfiguration>();
+                var baseUrl = cfg["ApiBaseUrl"];
+                if (string.IsNullOrWhiteSpace(baseUrl))
+                    throw new InvalidOperationException("APIBaseUrl is missing in appsettings.json");
+                client.BaseAddress = new Uri(baseUrl);
+            });
 
             var app = builder.Build();
 
@@ -43,6 +79,7 @@ namespace FribergCars
             app.UseStaticFiles();
 
             app.UseRouting();
+
             app.UseSession();
 
             app.UseAuthorization();
